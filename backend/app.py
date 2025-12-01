@@ -10,6 +10,7 @@ from flask_cors import CORS
 from parser import parse_spotify_json, parse_spotify_zip, ParseError
 from segmentation import segment_listening_history
 from llm_service import name_all_eras
+from playlist_builder import build_all_playlists
 
 load_dotenv()
 
@@ -198,6 +199,17 @@ def process(session_id):
 
         name_all_eras(eras, update_progress)
         session["progress"] = {"stage": "named", "percent": 70}
+
+        # Phase 3: Playlist Generation
+        session["progress"] = {"stage": "playlists", "percent": 80}
+        try:
+            playlists = build_all_playlists(eras)
+            session["playlists"] = playlists
+        except Exception:
+            # Playlist generation failed, continue with empty playlists
+            session["playlists"] = []
+
+        session["progress"] = {"stage": "complete", "percent": 100}
 
         return jsonify({"status": "ok", "era_count": len(eras)})
 
