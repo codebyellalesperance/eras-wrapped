@@ -1,7 +1,8 @@
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from flask import Flask, jsonify
+from uuid import uuid4
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 load_dotenv()
@@ -34,6 +35,48 @@ def cleanup_old_sessions():
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({"status": "ok"})
+
+
+# ZIP magic bytes
+ZIP_MAGIC = b'PK\x03\x04'
+
+
+def is_valid_file_type(file_bytes, filename):
+    """Check if file is a valid ZIP or JSON file."""
+    is_zip = file_bytes[:4] == ZIP_MAGIC
+    is_json_ext = filename.lower().endswith('.json')
+    is_zip_ext = filename.lower().endswith('.zip')
+    return is_zip or is_json_ext or is_zip_ext
+
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    cleanup_old_sessions()
+
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
+    file_bytes = file.read()
+
+    if not is_valid_file_type(file_bytes, file.filename):
+        return jsonify({"error": "Invalid file type. Please upload a .json or .zip file"}), 400
+
+    session_id = str(uuid4())
+    sessions[session_id] = {
+        "events": [],
+        "eras": [],
+        "playlists": [],
+        "progress": {"stage": "uploading", "percent": 0},
+        "created_at": datetime.now(),
+        "file_bytes": file_bytes,
+        "filename": file.filename
+    }
+
+    return jsonify({"session_id": session_id})
 
 
 if __name__ == '__main__':
