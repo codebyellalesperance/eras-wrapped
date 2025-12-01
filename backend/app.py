@@ -8,6 +8,7 @@ from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
 
 from parser import parse_spotify_json, parse_spotify_zip, ParseError
+from segmentation import segment_listening_history
 
 load_dotenv()
 
@@ -158,6 +159,46 @@ def progress(session_id):
             'X-Accel-Buffering': 'no'  # Disable nginx buffering
         }
     )
+
+
+@app.route('/process/<session_id>', methods=['POST'])
+def process(session_id):
+    """Trigger era segmentation for a session."""
+    if session_id not in sessions:
+        return jsonify({"error": "Session not found"}), 404
+
+    session = sessions[session_id]
+
+    if not session.get("events"):
+        return jsonify({"error": "No events to process"}), 400
+
+    try:
+        eras = segment_listening_history(session["events"])
+
+        if not eras:
+            session["progress"] = {
+                "stage": "error",
+                "message": "No distinct eras found in your listening history",
+                "percent": 0
+            }
+            return jsonify({"error": "No distinct eras found"}), 400
+
+        # Store eras and update progress
+        session["eras"] = eras
+        session["progress"] = {"stage": "segmented", "percent": 40}
+
+        # Free memory by removing raw events
+        del session["events"]
+
+        return jsonify({"status": "ok", "era_count": len(eras)})
+
+    except Exception as e:
+        session["progress"] = {
+            "stage": "error",
+            "message": str(e),
+            "percent": 0
+        }
+        return jsonify({"error": f"Processing failed: {e}"}), 500
 
 
 if __name__ == '__main__':

@@ -229,3 +229,20 @@ def filter_eras(eras: List[Era], min_weeks: int = 2, min_ms: int = 3600000) -> L
         era.id = i + 1
 
     return filtered
+
+
+def segment_listening_history(events: List[ListeningEvent]) -> List[Era]:
+    """
+    Main entry point for era segmentation.
+
+    Args:
+        events: List of ListeningEvent objects
+
+    Returns:
+        List of Era objects (may be empty)
+    """
+    weeks = aggregate_by_week(events)
+    boundaries = detect_era_boundaries(weeks)
+    eras = build_eras(weeks, boundaries)
+    filtered = filter_eras(eras)
+    return filtered
