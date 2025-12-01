@@ -2,7 +2,7 @@ from collections import Counter
 from datetime import date, timedelta
 from typing import List
 
-from models import ListeningEvent, WeekBucket
+from models import ListeningEvent, WeekBucket, Era
 
 
 def aggregate_by_week(events: List[ListeningEvent]) -> List[WeekBucket]:
@@ -124,3 +124,75 @@ def detect_era_boundaries(weeks: List[WeekBucket], threshold: float = 0.3) -> Li
             boundaries.append(i)
 
     return boundaries
+
+
+def build_eras(weeks: List[WeekBucket], boundaries: List[int]) -> List[Era]:
+    """
+    Build Era objects from week buckets and boundaries.
+
+    Args:
+        weeks: List of WeekBucket objects sorted by week_start
+        boundaries: List of week indices where eras start
+
+    Returns:
+        List of Era objects with sequential IDs starting at 1
+    """
+    if not weeks or not boundaries:
+        return []
+
+    eras = []
+
+    for i, start_idx in enumerate(boundaries):
+        # Determine end index (exclusive)
+        if i + 1 < len(boundaries):
+            end_idx = boundaries[i + 1]
+        else:
+            end_idx = len(weeks)
+
+        # Get weeks for this era
+        era_weeks = weeks[start_idx:end_idx]
+        if not era_weeks:
+            continue
+
+        # Combine artist counts
+        combined_artists = sum(
+            (week.artists for week in era_weeks),
+            Counter()
+        )
+
+        # Combine track counts
+        combined_tracks = sum(
+            (week.tracks for week in era_weeks),
+            Counter()
+        )
+
+        # Calculate total listening time
+        total_ms = sum(week.total_ms for week in era_weeks)
+
+        # Get top 10 artists as List[Tuple[str, int]]
+        top_artists = combined_artists.most_common(10)
+
+        # Get top 20 tracks as List[Tuple[str, str, int]]
+        # Track keys are (track_name, artist_name), values are counts
+        top_tracks = [
+            (track_name, artist_name, count)
+            for (track_name, artist_name), count in combined_tracks.most_common(20)
+        ]
+
+        # Calculate dates
+        start_date = era_weeks[0].week_start
+        end_date = era_weeks[-1].week_start + timedelta(days=6)
+
+        era = Era(
+            id=i + 1,  # 1-indexed
+            start_date=start_date,
+            end_date=end_date,
+            top_artists=top_artists,
+            top_tracks=top_tracks,
+            total_ms_played=total_ms,
+            title="",
+            summary=""
+        )
+        eras.append(era)
+
+    return eras
