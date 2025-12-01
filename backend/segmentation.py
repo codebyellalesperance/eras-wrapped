@@ -58,3 +58,34 @@ def aggregate_by_week(events: List[ListeningEvent]) -> List[WeekBucket]:
     buckets.sort(key=lambda b: b.week_start)
 
     return buckets
+
+
+def calculate_similarity(week_a: WeekBucket, week_b: WeekBucket) -> float:
+    """
+    Calculate Jaccard similarity between two weeks based on top artists.
+
+    Args:
+        week_a: First week bucket
+        week_b: Second week bucket
+
+    Returns:
+        Float between 0.0 and 1.0 representing similarity
+    """
+    # Get top N artists from each week
+    n = min(20, len(week_a.artists), len(week_b.artists))
+
+    if n == 0:
+        return 0.0
+
+    # Extract artist names from top N
+    top_a = set(artist for artist, _ in week_a.artists.most_common(n))
+    top_b = set(artist for artist, _ in week_b.artists.most_common(n))
+
+    # Calculate Jaccard similarity
+    intersection = len(top_a & top_b)
+    union = len(top_a | top_b)
+
+    if union == 0:
+        return 0.0
+
+    return intersection / union
