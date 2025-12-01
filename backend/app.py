@@ -9,6 +9,7 @@ from flask_cors import CORS
 
 from parser import parse_spotify_json, parse_spotify_zip, ParseError
 from segmentation import segment_listening_history
+from llm_service import name_all_eras
 
 load_dotenv()
 
@@ -163,7 +164,7 @@ def progress(session_id):
 
 @app.route('/process/<session_id>', methods=['POST'])
 def process(session_id):
-    """Trigger era segmentation for a session."""
+    """Trigger era segmentation and LLM naming for a session."""
     if session_id not in sessions:
         return jsonify({"error": "Session not found"}), 404
 
@@ -173,6 +174,7 @@ def process(session_id):
         return jsonify({"error": "No events to process"}), 400
 
     try:
+        # Phase 1: Segmentation
         eras = segment_listening_history(session["events"])
 
         if not eras:
@@ -189,6 +191,13 @@ def process(session_id):
 
         # Free memory by removing raw events
         del session["events"]
+
+        # Phase 2: LLM Naming
+        def update_progress(percent):
+            session["progress"] = {"stage": "naming", "percent": percent}
+
+        name_all_eras(eras, update_progress)
+        session["progress"] = {"stage": "named", "percent": 70}
 
         return jsonify({"status": "ok", "era_count": len(eras)})
 
