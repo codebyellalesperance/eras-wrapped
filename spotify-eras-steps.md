@@ -80,55 +80,78 @@ class Playlist:
 
 ### Step 1.1 — Create Basic Flask App
 In `app.py`:
+- Load environment variables: `from dotenv import load_dotenv; load_dotenv()`
 - Initialize Flask app
-- Enable CORS
+- Set max upload size: `app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB`
+- Enable CORS (restrict origins in production): `CORS(app, origins=os.getenv('ALLOWED_ORIGINS', '*').split(','))`
 - Create in-memory session store: `sessions = {}`
+- Add session cleanup: store `created_at` timestamp with each session, periodically remove sessions older than 1 hour
 - Create route `GET /health` that returns `{"status": "ok"}`
 
 ### Step 1.2 — Create Upload Endpoint
 Create `POST /upload` endpoint that:
 - Accepts multipart form data with file(s)
-- Generates a unique session_id (use uuid4)
-- Stores empty session object: `sessions[session_id] = {"events": [], "eras": [], "playlists": [], "progress": {"stage": "uploading", "percent": 0}}`
+- Validate file exists in request, return `{"error": "No file provided"}` with 400 status if missing
+- Validate file type (check both extension AND magic bytes for ZIP files)
+- Only after validation: generate unique session_id (use uuid4)
+- Store session object: `sessions[session_id] = {"events": [], "eras": [], "playlists": [], "progress": {"stage": "uploading", "percent": 0}, "created_at": datetime.now()}`
 - Returns `{"session_id": session_id}`
 
 ### Step 1.3 — Parse Single JSON File
 In `parser.py`, create function `parse_spotify_json(file_content: bytes) -> List[ListeningEvent]`:
+- Wrap parsing in try/except for `orjson.JSONDecodeError`
 - Parse JSON content using `orjson.loads()` for better performance
 - Spotify's extended history format has these fields:
-  - `ts` (timestamp string)
+  - `ts` (ISO 8601 timestamp string, e.g., `"2023-01-15T14:30:00Z"`)
   - `master_metadata_track_name`
   - `master_metadata_album_artist_name`
   - `ms_played`
   - `spotify_track_uri`
 - Filter out entries where `ms_played < 30000` (less than 30 seconds = skip)
 - Filter out entries where `master_metadata_track_name` is null
+- Filter out entries where `master_metadata_album_artist_name` is null
+- Parse timestamp: use `datetime.fromisoformat(ts.replace('Z', '+00:00'))` to handle UTC timezone
 - Convert each valid entry to a `ListeningEvent`
+- Deduplicate by (timestamp, track_name, artist_name) to handle duplicate entries in exports
 - Return list of events
 
 ### Step 1.4 — Handle ZIP Upload
-Create function `parse_spotify_zip(zip_file) -> List[ListeningEvent]`:
-- Extract ZIP contents
-- Find all files matching pattern `Streaming_History_Audio_*.json`
-- Call `parse_spotify_json` on each file
+Create function `parse_spotify_zip(zip_bytes: bytes) -> List[ListeningEvent]`:
+- Use in-memory extraction with `io.BytesIO(zip_bytes)` — do NOT extract to disk
+- Validate ZIP file: `zipfile.is_zipfile(bytes_io)`
+- Security: validate each filename doesn't contain path traversal (`..` or absolute paths)
+- Security: limit total extracted size to prevent zip bombs (e.g., 1GB max)
+- Use `fnmatch.fnmatch(name, '*Streaming_History_Audio_*.json')` to find matching files
+- Handle nested directories: Spotify sometimes puts files in a subfolder like `my_spotify_data/`
+- Call `parse_spotify_json` on each matching file's bytes
 - Combine all events into single list
 - Sort by timestamp ascending
 - Return combined list
 
 ### Step 1.5 — Integrate Parsing into Upload
 Update `POST /upload` to:
-- Detect if uploaded file is .zip or .json
-- Call appropriate parser
-- Store parsed events in `sessions[session_id]["events"]`
+- Detect file type by checking magic bytes: ZIP files start with `PK\x03\x04`
+- Also check extension as fallback (`.zip` or `.json`)
+- Call appropriate parser, wrapped in try/except
+- On parse error: return `{"error": "Failed to parse file: <message>"}` with 400 status
+- On success: store parsed events in `sessions[session_id]["events"]`
 - Update progress to `{"stage": "parsed", "percent": 20}`
-- Trigger async processing (or return and let frontend poll)
+- Process synchronously for MVP (blocking call) — async can be added later with threading or Celery
 
 ### Step 1.6 — Create Progress Endpoint
 Create `GET /progress/<session_id>` as Server-Sent Events (SSE):
-- Return `text/event-stream` content type
+- Return 404 JSON error if session_id not found
+- Use `stream_with_context` from Flask for proper generator handling
+- Set required headers:
+  - `Content-Type: text/event-stream`
+  - `Cache-Control: no-cache`
+  - `Connection: keep-alive`
 - Yield current progress state from `sessions[session_id]["progress"]`
 - Format: `data: {"stage": "...", "percent": ...}\n\n`
+- Send keepalive comment every 15 seconds: `: keepalive\n\n`
+- Poll internal state every 500ms
 - Continue until stage is "complete" or "error"
+- Set a timeout (e.g., 5 minutes max) to prevent hung connections
 
 ---
 
