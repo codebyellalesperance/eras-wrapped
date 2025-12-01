@@ -2,7 +2,9 @@ import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from uuid import uuid4
-from flask import Flask, jsonify, request
+import time
+import orjson
+from flask import Flask, jsonify, request, Response, stream_with_context
 from flask_cors import CORS
 
 from parser import parse_spotify_json, parse_spotify_zip, ParseError
@@ -99,6 +101,63 @@ def upload():
     sessions[session_id]["progress"] = {"stage": "parsed", "percent": 20}
 
     return jsonify({"session_id": session_id})
+
+
+# SSE settings
+SSE_POLL_INTERVAL = 0.5  # seconds
+SSE_KEEPALIVE_INTERVAL = 15  # seconds
+SSE_TIMEOUT = 300  # 5 minutes max
+
+
+@app.route('/progress/<session_id>', methods=['GET'])
+def progress(session_id):
+    if session_id not in sessions:
+        return jsonify({"error": "Session not found"}), 404
+
+    def generate():
+        start_time = time.time()
+        last_keepalive = start_time
+
+        while True:
+            # Check timeout
+            elapsed = time.time() - start_time
+            if elapsed > SSE_TIMEOUT:
+                yield f"data: {orjson.dumps({'stage': 'error', 'message': 'Timeout'}).decode()}\n\n"
+                break
+
+            # Check if session still exists
+            if session_id not in sessions:
+                yield f"data: {orjson.dumps({'stage': 'error', 'message': 'Session expired'}).decode()}\n\n"
+                break
+
+            # Get current progress
+            session = sessions[session_id]
+            progress_data = session.get("progress", {"stage": "unknown", "percent": 0})
+
+            # Send progress update
+            yield f"data: {orjson.dumps(progress_data).decode()}\n\n"
+
+            # Check if complete or error
+            if progress_data.get("stage") in ("complete", "error"):
+                break
+
+            # Send keepalive if needed
+            current_time = time.time()
+            if current_time - last_keepalive >= SSE_KEEPALIVE_INTERVAL:
+                yield ": keepalive\n\n"
+                last_keepalive = current_time
+
+            time.sleep(SSE_POLL_INTERVAL)
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'  # Disable nginx buffering
+        }
+    )
 
 
 if __name__ == '__main__':
