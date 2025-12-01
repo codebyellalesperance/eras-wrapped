@@ -89,3 +89,38 @@ def calculate_similarity(week_a: WeekBucket, week_b: WeekBucket) -> float:
         return 0.0
 
     return intersection / union
+
+
+def detect_era_boundaries(weeks: List[WeekBucket], threshold: float = 0.3) -> List[int]:
+    """
+    Detect boundaries between eras based on listening pattern changes.
+
+    Args:
+        weeks: List of WeekBucket objects sorted by week_start
+        threshold: Similarity threshold below which a new era starts (0.0-1.0)
+                   Lower = more eras, Higher = fewer eras
+
+    Returns:
+        List of week indices where new eras start (always includes 0)
+    """
+    if not weeks:
+        return []
+
+    if len(weeks) == 1:
+        return [0]
+
+    boundaries = [0]  # First week is always a boundary
+
+    for i in range(1, len(weeks)):
+        # Check for gap in listening (more than 4 weeks)
+        gap_days = (weeks[i].week_start - weeks[i - 1].week_start).days
+        if gap_days > 28:  # More than 4 weeks gap
+            boundaries.append(i)
+            continue
+
+        # Check similarity with previous week
+        similarity = calculate_similarity(weeks[i - 1], weeks[i])
+        if similarity < threshold:
+            boundaries.append(i)
+
+    return boundaries
