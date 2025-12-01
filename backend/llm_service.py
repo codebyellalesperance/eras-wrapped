@@ -254,3 +254,51 @@ def name_era(era: Era) -> dict:
     except Exception:
         # Any error, use fallback
         return get_fallback_response(era)
+
+
+def validate_era_name(response: dict, era: Era) -> dict:
+    """
+    Validate and clean LLM response.
+
+    Args:
+        response: Dict with title and summary from LLM
+        era: Era object for fallback generation
+
+    Returns:
+        Cleaned dict with valid title and summary
+    """
+    fallback = get_fallback_response(era)
+
+    # Validate title
+    title = response.get("title", "")
+    if isinstance(title, str):
+        # Clean title: strip whitespace and quotes
+        title = title.strip().strip('"\'')
+        # Remove newlines
+        title = title.replace('\n', ' ').replace('\r', '')
+        # Collapse multiple spaces
+        title = ' '.join(title.split())
+        # Truncate if too long
+        if len(title) > 50:
+            title = title[:47] + "..."
+
+    # Use fallback if title is invalid
+    if not title or len(title) < 2:
+        title = fallback["title"]
+
+    # Validate summary
+    summary = response.get("summary", "")
+    if isinstance(summary, str):
+        # Clean summary: strip whitespace and quotes
+        summary = summary.strip().strip('"\'')
+        # Collapse multiple spaces/newlines
+        summary = ' '.join(summary.split())
+        # Truncate if too long
+        if len(summary) > 500:
+            summary = summary[:497] + "..."
+
+    # Use fallback if summary is invalid
+    if not summary or len(summary) < 20:
+        summary = fallback["summary"]
+
+    return {"title": title, "summary": summary}
