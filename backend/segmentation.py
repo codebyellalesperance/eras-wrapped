@@ -196,3 +196,36 @@ def build_eras(weeks: List[WeekBucket], boundaries: List[int]) -> List[Era]:
         eras.append(era)
 
     return eras
+
+
+def filter_eras(eras: List[Era], min_weeks: int = 2, min_ms: int = 3600000) -> List[Era]:
+    """
+    Filter out insignificant eras and renumber remaining ones.
+
+    Args:
+        eras: List of Era objects
+        min_weeks: Minimum number of weeks for an era to be kept (default 2)
+        min_ms: Minimum total listening time in milliseconds (default 1 hour)
+
+    Returns:
+        Filtered list of Era objects with renumbered IDs
+    """
+    filtered = []
+
+    for era in eras:
+        # Calculate weeks in era
+        weeks_in_era = ((era.end_date - era.start_date).days // 7) + 1
+
+        # Apply filters
+        if weeks_in_era < min_weeks:
+            continue
+        if era.total_ms_played < min_ms:
+            continue
+
+        filtered.append(era)
+
+    # Renumber IDs sequentially
+    for i, era in enumerate(filtered):
+        era.id = i + 1
+
+    return filtered
