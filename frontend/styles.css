@@ -943,3 +943,383 @@ button:focus-visible,
         display: none;
     }
 }
+/* ========================================
+   SWIPE CARD SPECIFIC STYLES
+   ======================================== */
+
+/* Hero Content */
+.hero-content {
+    text-align: center;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.hero-text {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.features {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.feature {
+    text-align: center;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.feature p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.daily-note {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 1.5rem;
+}
+
+/* Swipe View */
+.swipe-container {
+    max-width: 500px;
+    padding-bottom: 2rem;
+}
+
+.swipe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.progress-indicator {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.streak-badge {
+    background: rgba(29, 185, 84, 0.1);
+    color: var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* Card Stack */
+.card-stack {
+    position: relative;
+    height: 500px;
+    margin-bottom: 2rem;
+}
+
+.song-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(24, 24, 24, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.3s ease;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.song-card:active {
+    cursor: grabbing;
+}
+
+.song-card.swiping {
+    transition: none;
+}
+
+.song-card.swiped-right {
+    transform: translateX(150%) rotate(20deg);
+    opacity: 0;
+}
+
+.song-card.swiped-left {
+    transform: translateX(-150%) rotate(-20deg);
+    opacity: 0;
+}
+
+/* Card layers for depth */
+.song-card:nth-child(2) {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0.8;
+    z-index: 1;
+}
+
+.song-card:nth-child(3) {
+    transform: scale(0.9) translateY(20px);
+    opacity: 0.6;
+    z-index: 0;
+}
+
+.song-card:first-child {
+    z-index: 10;
+}
+
+/* Album Art Placeholder */
+.album-art {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, var(--accent) 0%, #15803d 50%, var(--bg-primary) 100%);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    box-shadow: 0 8px 24px rgba(29, 185, 84, 0.3);
+}
+
+.track-name {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, rgba(255, 255, 255, 0.8) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.artist-name {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.genre-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.genre-tag {
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: rgba(29, 185, 84, 0.1);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid rgba(29, 185, 84, 0.2);
+}
+
+/* Swipe Actions */
+.swipe-actions {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    margin-bottom: 1rem;
+}
+
+.action-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.dislike-btn {
+    background: rgba(226, 33, 52, 0.1);
+    color: var(--error);
+    border: 2px solid rgba(226, 33, 52, 0.3);
+}
+
+.dislike-btn:hover {
+    background: rgba(226, 33, 52, 0.2);
+    box-shadow: 0 8px 24px rgba(226, 33, 52, 0.3);
+}
+
+.like-btn {
+    background: rgba(29, 185, 84, 0.1);
+    color: var(--accent);
+    border: 2px solid rgba(29, 185, 84, 0.3);
+}
+
+.like-btn:hover {
+    background: rgba(29, 185, 84, 0.2);
+    box-shadow: 0 8px 24px rgba(29, 185, 84, 0.3);
+}
+
+.swipe-hint {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+/* Results View */
+.results-container {
+    max-width: 600px;
+}
+
+.results-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    animation: fadeInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.results-subtitle {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.results-section {
+    margin: 2rem 0;
+}
+
+.results-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.song-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.song-item {
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    animation: slideInFromLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.song-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.song-item:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.song-item:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.song-item:nth-child(4) {
+    animation-delay: 0.25s;
+}
+
+.song-item:nth-child(5) {
+    animation-delay: 0.3s;
+}
+
+.song-emoji {
+    font-size: 2rem;
+}
+
+.song-info {
+    flex: 1;
+}
+
+.song-info-track {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.song-info-artist {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.results-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.next-session-note {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 1.5rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-secondary);
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+    .features {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .card-stack {
+        height: 450px;
+    }
+
+    .album-art {
+        width: 160px;
+        height: 160px;
+        font-size: 3rem;
+    }
+
+    .track-name {
+        font-size: 1.5rem;
+    }
+
+    .artist-name {
+        font-size: 1.125rem;
+    }
+
+    .swipe-actions {
+        gap: 2rem;
+    }
+
+    .action-btn {
+        width: 50px;
+        height: 50px;
+    }
+}
