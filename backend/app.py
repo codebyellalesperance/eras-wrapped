@@ -20,10 +20,22 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB
+app.secret_key = os.getenv('SECRET_KEY', os.urandom(24))  # For session management
+
+# Import Spotify modules
+from spotify_auth import init_spotify_routes
+from spotify_service import (
+    get_recommendations,
+    create_daylist_playlist,
+    get_user_top_artists
+)
+
+# Initialize Spotify OAuth routes
+init_spotify_routes(app)
 
 # CORS configuration
 allowed_origins = os.getenv('ALLOWED_ORIGINS', '*').split(',')
-CORS(app, origins=allowed_origins)
+CORS(app, origins=allowed_origins, supports_credentials=True)
 
 # Rate limiting
 limiter = Limiter(
@@ -350,5 +362,58 @@ def get_era_detail(session_id, era_id):
     return jsonify(serialize_era_detail(era, playlist))
 
 
+# ===========================================================================
+# SPOTIFY API ENDPOINTS
+# ===========================================================================
+
+@app.route('/api/recommendations', methods=['GET'])
+@limiter.limit("10 per minute")
+def api_get_recommendations():
+    """Get 10 personalized song recommendations from Spotify"""
+    try:
+        tracks = get_recommendations(limit=10)
+        
+        # Format for frontend
+        songs = []
+        for track in tracks:
+            songs.append({
+                'id': track['id'],
+                'track': track['name'],
+                'artist': ', '.join([artist['name'] for artist in track['artists']]),
+                'uri': track['uri'],
+                'preview_url': track.get('preview_url'),
+                'album_art': track['album']['images'][0]['url'] if track['album'].get('images') else None,
+                'genre': []  # Spotify doesn't provide genre per track
+            })
+        
+        return jsonify({'songs': songs})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/playlist/create', methods=['POST'])
+@limiter.limit("5 per hour")
+def api_create_playlist():
+    """Create a Spotify playlist from liked tracks"""
+    try:
+        data = request.json
+        liked_tracks = data.get('liked_tracks', [])
+        
+        if not liked_tracks:
+            return jsonify({'error': 'No tracks to add'}), 400
+        
+        # Create playlist
+        result = create_daylist_playlist(liked_tracks)
+        
+        return jsonify({
+            'success': True,
+            'playlist': result
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
-    app.run(debug=os.getenv('FLASK_ENV') == 'development', port=5000)
+    app.run(debug=os.getenv('FLASK_ENV') == 'development', port=5001)

@@ -5,3 +5,4 @@ python-dotenv
 orjson
 gunicorn
 openai
+requests
