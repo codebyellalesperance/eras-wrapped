@@ -34,8 +34,17 @@ const state = {
 // ===========================================================================
 
 function showView(viewName) {
+    console.log('Showing view:', viewName);
+
     const oldView = document.querySelector('.view:not(.hidden)');
     const newView = document.getElementById(`${viewName}-view`);
+
+    if (!newView) {
+        console.error(`View not found: ${viewName}-view`);
+        return;
+    }
+
+    console.log('New view found:', newView);
 
     if (oldView) {
         oldView.classList.add('view-exit');
@@ -54,6 +63,8 @@ function showView(viewName) {
 
     state.currentView = viewName;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    console.log('View transition complete');
 }
 
 function shuffleArray(array) {
@@ -298,11 +309,17 @@ function animateNumber(element, finalValue, duration = 1000) {
 // ===========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded');
+    console.log('Start button:', document.getElementById('start-swiping-btn'));
+
     // Start Swiping button
     document.getElementById('start-swiping-btn').addEventListener('click', () => {
+        console.log('Start Swiping button clicked');
         initializeDailySongs();
+        console.log('Daily songs initialized:', state.dailySongs);
         showView('swipe');
         renderCards();
+        console.log('Cards rendered');
     });
 
     // Manual action buttons
