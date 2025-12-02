@@ -3,10 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Eras</title>
+    <title>Spotify Eras - Discover Your Music Timeline</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Landing View -->
+    <section id="landing-view" class="view">
+        <div class="container">
+            <h1>Spotify Eras</h1>
+            <p class="subtitle">Discover your personal music timeline</p>
+
+            <!-- Upload Area -->
+            <div id="upload-area" class="upload-area" tabindex="0">
+                <svg class="upload-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p class="upload-text">Drop your Spotify data here</p>
+                <p class="upload-subtext">or click to browse</p>
+                <input type="file" id="file-input" accept=".json,.zip" hidden>
+            </div>
+
+            <!-- File Info (hidden by default) -->
+            <div id="file-info" class="file-info hidden">
+                <p id="file-name" class="file-name"></p>
+                <p id="file-size" class="file-size"></p>
+                <button id="clear-file" class="clear-btn">×</button>
+            </div>
+
+            <!-- Analyze Button -->
+            <button id="analyze-btn" class="btn-primary" disabled>Analyze My Music</button>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <h3>How to get your data:</h3>
+                <ol>
+                    <li>Go to <a href="https://www.spotify.com/account/privacy/" target="_blank" rel="noopener noreferrer">Spotify Privacy Settings</a></li>
+                    <li>Request your "Account Data"</li>
+                    <li>Wait for email (usually 1-30 days)</li>
+                    <li>Upload your streaming history JSON or ZIP here</li>
+                </ol>
+            </div>
+
+            <!-- Privacy Note -->
+            <p class="privacy-note">🔒 Your data is processed in-memory and never stored permanently</p>
+
+            <!-- Error Message -->
+            <div id="error-message" class="error hidden">
+                <p id="error-text"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Processing View -->
+    <section id="processing-view" class="view hidden">
+        <div class="container">
+            <h1>Analyzing Your Music</h1>
+            <p id="stage-text" class="stage-text" role="status" aria-live="polite">Starting...</p>
+
+            <div class="progress-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <span id="progress-percent" class="progress-percent">0%</span>
+            </div>
+
+            <div class="spinner" aria-label="Processing"></div>
+
+            <p class="processing-note">This may take a minute for large libraries.</p>
+
+            <div id="processing-error" class="error hidden" role="alert">
+                <p id="processing-error-text"></p>
+                <button id="retry-btn" class="btn-secondary">Try Again</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline View -->
+    <section id="timeline-view" class="view hidden">
+        <div class="container timeline-container">
+            <header class="timeline-header">
+                <h1>Your Music Journey</h1>
+                <div class="stats-grid" role="region" aria-label="Listening statistics">
+                    <div class="stat">
+                        <span id="stat-hours" class="stat-value">0</span>
+                        <span class="stat-label">hours listened</span>
+                    </div>
+                    <div class="stat">
+                        <span id="stat-eras" class="stat-value">0</span>
+                        <span class="stat-label">eras</span>
+                    </div>
+                    <div class="stat">
+                        <span id="stat-artists" class="stat-value">0</span>
+                        <span class="stat-label">artists</span>
+                    </div>
+                </div>
+                <p id="stat-date-range" class="date-range"></p>
+            </header>
+
+            <div id="timeline" class="timeline" role="region" aria-label="Music eras timeline">
+                <!-- Era cards rendered here by JS -->
+            </div>
+
+            <button id="start-over-btn" class="btn-secondary">Start Over</button>
+        </div>
+    </section>
+
+    <!-- Detail View -->
+    <section id="detail-view" class="view hidden">
+        <div class="container detail-container">
+            <button id="back-btn" class="back-btn">
+                <span class="back-arrow">←</span> Back to Timeline
+            </button>
+
+            <!-- Loading State -->
+            <div id="detail-loading" class="detail-loading hidden" role="status" aria-live="polite">
+                <div class="spinner" aria-label="Loading"></div>
+                <p>Loading era details...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="detail-error" class="detail-error hidden" role="alert">
+                <p id="detail-error-text"></p>
+                <button class="btn-secondary" onclick="showView('timeline')">Back to Timeline</button>
+            </div>
+
+            <!-- Content (shown after loading completes) -->
+            <div id="detail-content">
+                <header class="detail-header">
+                    <h1 id="detail-title" class="detail-title"></h1>
+                    <p id="detail-dates" class="detail-dates"></p>
+                    <p id="detail-summary" class="detail-summary"></p>
+                </header>
+
+                <div class="detail-stats">
+                    <div class="detail-stat">
+                        <span id="detail-hours" class="detail-stat-value"></span>
+                        <span class="detail-stat-label">hours</span>
+                    </div>
+                    <div class="detail-stat">
+                        <span id="detail-track-count" class="detail-stat-value"></span>
+                        <span class="detail-stat-label">tracks</span>
+                    </div>
+                </div>
+
+                <section class="detail-section">
+                    <h2>Top Artists</h2>
+                    <ol id="detail-artists" class="artist-list"></ol>
+                </section>
+
+                <section class="detail-section">
+                    <div class="section-header">
+                        <h2>Playlist</h2>
+                        <button id="copy-playlist-btn" class="btn-small">Copy Track List</button>
+                    </div>
+                    <ol id="detail-tracks" class="track-list"></ol>
+                </section>
+            </div>
+        </div>
+
+        <!-- Toast notification -->
+        <div id="toast" class="toast hidden">Copied to clipboard!</div>
+    </section>
+
     <script src="app.js"></script>
 </body>
 </html>
