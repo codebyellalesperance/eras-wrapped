@@ -1323,3 +1323,10 @@ button:focus-visible,
         height: 50px;
     }
 }
+.keyboard-hint {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    opacity: 0.6;
+}
