@@ -160,7 +160,7 @@ async function fetchSpotifyRecommendations() {
     }
 }
 
-async function savePlaylistToSpotify(liked_tracks) {
+async function savePlaylistToSpotify(liked_tracks, disliked_tracks = []) {
     /**Create Spotify playlist from liked songs*/
     try {
         const response = await fetch('http://localhost:5001/api/playlist/create', {
@@ -169,7 +169,10 @@ async function savePlaylistToSpotify(liked_tracks) {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({ liked_tracks })
+            body: JSON.stringify({
+                liked_tracks,
+                disliked_tracks
+            })
         });
 
         if (!response.ok) {
@@ -366,6 +369,11 @@ function showResults() {
         animateNumber(document.getElementById('total-swipes'), state.swipeCount, 1000);
     }, 200);
 
+    // Fetch AI taste analysis
+    if (state.isLoggedIn && state.likedSongs.length > 0) {
+        fetchTasteAnalysis();
+    }
+
     // Render liked songs
     const likedSongsList = document.getElementById('liked-songs-list');
     likedSongsList.innerHTML = '';
@@ -384,7 +392,7 @@ function showResults() {
             songItem.className = 'song-item';
             songItem.style.animationDelay = `${index * 0.05}s`;
             songItem.innerHTML = `
-                <div class="song-emoji">${song.emoji}</div>
+                <div class="song-emoji">${song.emoji || '🎵'}</div>
                 <div class="song-info">
                     <div class="song-info-track">${song.track}</div>
                     <div class="song-info-artist">${song.artist}</div>
@@ -393,6 +401,51 @@ function showResults() {
             likedSongsList.appendChild(songItem);
         });
     }
+}
+
+async function fetchTasteAnalysis() {
+    /**Fetch AI-powered taste analysis*/
+    try {
+        const response = await fetch('http://localhost:5001/api/taste-analysis', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                liked_songs: state.likedSongs,
+                disliked_songs: state.dislikedSongs
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            displayTasteAnalysis(data);
+        }
+    } catch (error) {
+        console.error('Failed to get taste analysis:', error);
+    }
+}
+
+function displayTasteAnalysis(data) {
+    /**Display AI taste analysis results*/
+    const tasteSection = document.getElementById('taste-analysis');
+    const summaryEl = document.getElementById('taste-summary');
+    const vibeBadge = document.getElementById('vibe-badge');
+    const moodBadge = document.getElementById('mood-badge');
+
+    if (data.taste) {
+        summaryEl.textContent = data.taste.summary;
+        vibeBadge.textContent = `✨ ${data.taste.vibe}`;
+    }
+
+    if (data.mood) {
+        moodBadge.textContent = `${data.mood.mood}`;
+        moodBadge.style.borderColor = data.mood.color;
+        moodBadge.style.background = `${data.mood.color}20`;
+    }
+
+    tasteSection.classList.remove('hidden');
 }
 
 function animateNumber(element, finalValue, duration = 1000) {
@@ -508,14 +561,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             saveToSpotifyBtn.textContent = 'Creating playlist...';
 
             try {
-                const playlist = await savePlaylistToSpotify(state.likedSongs);
+                const playlist = await savePlaylistToSpotify(state.likedSongs, state.dislikedSongs);
 
                 // Show success
                 saveToSpotifyBtn.textContent = '✅ Saved to Spotify!';
 
-                // Show playlist link
+                // Show playlist details with AI insights
                 setTimeout(() => {
-                    if (confirm(`Playlist "${playlist.name}" created! Open in Spotify?`)) {
+                    let message = `Playlist "${playlist.name}" created!`;
+                    if (playlist.taste_analysis) {
+                        message += `\n\n${playlist.taste_analysis.summary}`;
+                    }
+                    message += '\n\nOpen in Spotify?';
+
+                    if (confirm(message)) {
                         window.open(playlist.url, '_blank');
                     }
                     saveToSpotifyBtn.textContent = 'Save to Spotify';

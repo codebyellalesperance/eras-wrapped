@@ -395,20 +395,73 @@ def api_get_recommendations():
 @app.route('/api/playlist/create', methods=['POST'])
 @limiter.limit("5 per hour")
 def api_create_playlist():
-    """Create a Spotify playlist from liked tracks"""
+    """Create a Spotify playlist from liked tracks with AI-generated name"""
     try:
+        from ai_service import analyze_music_taste, generate_playlist_name
+        
         data = request.json
         liked_tracks = data.get('liked_tracks', [])
+        disliked_tracks = data.get('disliked_tracks', [])
         
         if not liked_tracks:
             return jsonify({'error': 'No tracks to add'}), 400
         
-        # Create playlist
-        result = create_daylist_playlist(liked_tracks)
+        # AI: Analyze taste
+        taste_analysis = analyze_music_taste(liked_tracks, disliked_tracks)
+        
+        # AI: Generate creative playlist name
+        ai_playlist_name = generate_playlist_name(liked_tracks, taste_analysis)
+        
+        # Create playlist with AI name
+        from datetime import datetime
+        date_str = datetime.now().strftime('%B %d, %Y')
+        playlist_description = f"{taste_analysis.get('summary', 'Your daily discoveries')} • {len(liked_tracks)} songs"
+        
+        # Use spotify_service but override the name
+        from spotify_service import create_playlist, add_tracks_to_playlist
+        
+        playlist = create_playlist(ai_playlist_name, playlist_description, public=False)
+        
+        # Add tracks
+        track_uris = [track['uri'] for track in liked_tracks if track.get('uri')]
+        if track_uris:
+            add_tracks_to_playlist(playlist['id'], track_uris)
         
         return jsonify({
             'success': True,
-            'playlist': result
+            'playlist': {
+                'id': playlist['id'],
+                'name': playlist['name'],
+                'url': playlist['external_urls']['spotify'],
+                'track_count': len(track_uris)
+            },
+            'taste_analysis': taste_analysis
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/taste-analysis', methods=['POST'])
+@limiter.limit("20 per minute")
+def api_taste_analysis():
+    """Get AI analysis of user's music taste"""
+    try:
+        from ai_service import analyze_music_taste, detect_session_mood
+        
+        data = request.json
+        liked_songs = data.get('liked_songs', [])
+        disliked_songs = data.get('disliked_songs', [])
+        
+        # AI: Analyze taste
+        taste_analysis = analyze_music_taste(liked_songs, disliked_songs)
+        
+        # AI: Detect mood
+        mood_analysis = detect_session_mood(liked_songs, disliked_songs)
+        
+        return jsonify({
+            'taste': taste_analysis,
+            'mood': mood_analysis
         })
         
     except Exception as e:

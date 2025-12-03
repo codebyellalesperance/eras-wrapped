@@ -1,170 +1,72 @@
 [
   {
-    "endTime": "2023-01-15 14:23",
-    "artistName": "Taylor Swift",
-    "trackName": "Anti-Hero",
-    "msPlayed": 180000
+    "ts": "2023-01-15T14:23:00Z",
+    "master_metadata_track_name": "Anti-Hero",
+    "master_metadata_album_artist_name": "Taylor Swift",
+    "ms_played": 180000,
+    "spotify_track_uri": "spotify:track:0V3wPSX9ygBnCm8psDIegu"
   },
   {
-    "endTime": "2023-01-15 14:27",
-    "artistName": "Taylor Swift",
-    "trackName": "Lavender Haze",
-    "msPlayed": 196000
+    "ts": "2023-01-15T14:27:00Z",
+    "master_metadata_track_name": "Lavender Haze",
+    "master_metadata_album_artist_name": "Taylor Swift",
+    "ms_played": 196000,
+    "spotify_track_uri": "spotify:track:1bDbXMyjaUIooNwFE9wn0N"
   },
   {
-    "endTime": "2023-01-16 09:15",
-    "artistName": "Arctic Monkeys",
-    "trackName": "Do I Wanna Know?",
-    "msPlayed": 272000
+    "ts": "2023-01-16T09:15:00Z",
+    "master_metadata_track_name": "Do I Wanna Know?",
+    "master_metadata_album_artist_name": "Arctic Monkeys",
+    "ms_played": 272000,
+    "spotify_track_uri": "spotify:track:5FVd6KXrgO9B3JPmC8OPst"
   },
   {
-    "endTime": "2023-01-16 09:20",
-    "artistName": "Arctic Monkeys",
-    "trackName": "R U Mine?",
-    "msPlayed": 201000
+    "ts": "2023-02-10T18:45:00Z",
+    "master_metadata_track_name": "Blinding Lights",
+    "master_metadata_album_artist_name": "The Weeknd",
+    "ms_played": 200000,
+    "spotify_track_uri": "spotify:track:0VjIjW4GlUZAMYd2vXMi3b"
   },
   {
-    "endTime": "2023-02-10 18:45",
-    "artistName": "The Weeknd",
-    "trackName": "Blinding Lights",
-    "msPlayed": 200000
+    "ts": "2023-03-20T20:15:00Z",
+    "master_metadata_track_name": "Tití Me Preguntó",
+    "master_metadata_album_artist_name": "Bad Bunny",
+    "ms_played": 253000,
+    "spotify_track_uri": "spotify:track:5MIDNfhcI3qVMsNCTL0EPN"
   },
   {
-    "endTime": "2023-02-10 18:49",
-    "artistName": "The Weeknd",
-    "trackName": "Starboy",
-    "msPlayed": 230000
+    "ts": "2023-04-05T11:20:00Z",
+    "master_metadata_track_name": "As It Was",
+    "master_metadata_album_artist_name": "Harry Styles",
+    "ms_played": 167000,
+    "spotify_track_uri": "spotify:track:4Dvkj6JhhA12EX05fT7y2e"
   },
   {
-    "endTime": "2023-02-11 12:30",
-    "artistName": "Dua Lipa",
-    "trackName": "Levitating",
-    "msPlayed": 203000
+    "ts": "2023-05-12T16:50:00Z",
+    "master_metadata_track_name": "vampire",
+    "master_metadata_album_artist_name": "Olivia Rodrigo",
+    "ms_played": 219000,
+    "spotify_track_uri": "spotify:track:1kuGVB7EU95pJZ00S5bqeL"
   },
   {
-    "endTime": "2023-03-20 20:15",
-    "artistName": "Bad Bunny",
-    "trackName": "Tití Me Preguntó",
-    "msPlayed": 253000
+    "ts": "2023-08-22T21:45:00Z",
+    "master_metadata_track_name": "Paint The Town Red",
+    "master_metadata_album_artist_name": "Doja Cat",
+    "ms_played": 223000,
+    "spotify_track_uri": "spotify:track:3USxtqRwSYz57OKtys0UYX"
   },
   {
-    "endTime": "2023-03-20 20:19",
-    "artistName": "Bad Bunny",
-    "trackName": "Moscow Mule",
-    "msPlayed": 207000
+    "ts": "2023-11-18T14:55:00Z",
+    "master_metadata_track_name": "greedy",
+    "master_metadata_album_artist_name": "Tate McRae",
+    "ms_played": 132000,
+    "spotify_track_uri": "spotify:track:3kVUvbeRdcrqQ3oHk5hPdx"
   },
   {
-    "endTime": "2023-03-21 15:40",
-    "artistName": "SZA",
-    "trackName": "Kill Bill",
-    "msPlayed": 154000
-  },
-  {
-    "endTime": "2023-04-05 11:20",
-    "artistName": "Harry Styles",
-    "trackName": "As It Was",
-    "msPlayed": 167000
-  },
-  {
-    "endTime": "2023-04-05 11:23",
-    "artistName": "Harry Styles",
-    "trackName": "Watermelon Sugar",
-    "msPlayed": 174000
-  },
-  {
-    "endTime": "2023-05-12 16:50",
-    "artistName": "Olivia Rodrigo",
-    "trackName": "vampire",
-    "msPlayed": 219000
-  },
-  {
-    "endTime": "2023-05-12 16:54",
-    "artistName": "Olivia Rodrigo",
-    "trackName": "good 4 u",
-    "msPlayed": 178000
-  },
-  {
-    "endTime": "2023-06-08 19:30",
-    "artistName": "Billie Eilish",
-    "trackName": "What Was I Made For?",
-    "msPlayed": 222000
-  },
-  {
-    "endTime": "2023-06-08 19:34",
-    "artistName": "Billie Eilish",
-    "trackName": "bad guy",
-    "msPlayed": 194000
-  },
-  {
-    "endTime": "2023-07-14 13:15",
-    "artistName": "Peso Pluma",
-    "trackName": "ELLA BAILA SOLA",
-    "msPlayed": 162000
-  },
-  {
-    "endTime": "2023-07-14 13:18",
-    "artistName": "Karol G",
-    "trackName": "TQG",
-    "msPlayed": 200000
-  },
-  {
-    "endTime": "2023-08-22 21:45",
-    "artistName": "Doja Cat",
-    "trackName": "Paint The Town Red",
-    "msPlayed": 223000
-  },
-  {
-    "endTime": "2023-08-22 21:49",
-    "artistName": "Doja Cat",
-    "trackName": "Woman",
-    "msPlayed": 172000
-  },
-  {
-    "endTime": "2023-09-10 10:30",
-    "artistName": "Travis Scott",
-    "trackName": "FE!N",
-    "msPlayed": 246000
-  },
-  {
-    "endTime": "2023-09-10 10:34",
-    "artistName": "Travis Scott",
-    "trackName": "SICKO MODE",
-    "msPlayed": 312000
-  },
-  {
-    "endTime": "2023-10-05 17:20",
-    "artistName": "Drake",
-    "trackName": "Slime You Out",
-    "msPlayed": 189000
-  },
-  {
-    "endTime": "2023-10-05 17:23",
-    "artistName": "Drake",
-    "trackName": "One Dance",
-    "msPlayed": 173000
-  },
-  {
-    "endTime": "2023-11-18 14:55",
-    "artistName": "Tate McRae",
-    "trackName": "greedy",
-    "msPlayed": 132000
-  },
-  {
-    "endTime": "2023-11-18 14:58",
-    "artistName": "Tate McRae",
-    "trackName": "you broke me first",
-    "msPlayed": 169000
-  },
-  {
-    "endTime": "2023-12-01 20:10",
-    "artistName": "Miley Cyrus",
-    "trackName": "Flowers",
-    "msPlayed": 200000
-  },
-  {
-    "endTime": "2023-12-01 20:14",
-    "artistName": "Miley Cyrus",
-    "trackName": "Wrecking Ball",
-    "msPlayed": 221000
+    "ts": "2023-12-01T20:10:00Z",
+    "master_metadata_track_name": "Flowers",
+    "master_metadata_album_artist_name": "Miley Cyrus",
+    "ms_played": 200000,
+    "spotify_track_uri": "spotify:track:0yLdNVWF3Srea0uzk55zFn"
   }
 ]
