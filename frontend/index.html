@@ -4,61 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TasteSwipe - Discover Music Daily</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>TasteSwipe — Discover Music Daily</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="components.css">
 </head>
 
 <body>
     <!-- Landing View -->
     <section id="landing-view" class="view">
         <div class="container">
-            <h1>🎵 TasteSwipe</h1>
-            <p class="subtitle">Swipe. Discover. Vibe.</p>
+            <div class="hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">TasteSwipe</h1>
+                    <p class="hero-subtitle">Discover music that moves you. Daily.</p>
 
-            <div class="hero-content">
-                <p class="hero-text">Swipe through 10 songs daily and get a personalized playlist based on your taste
-                </p>
+                    <!-- Login Section -->
+                    <div id="login-section" class="login-section">
+                        <button id="spotify-login-btn" class="btn btn-primary btn-large">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path
+                                    d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+                            </svg>
+                            Connect with Spotify
+                        </button>
+                        <p class="login-note">Personalized recommendations based on your taste</p>
+                    </div>
 
-                <div class="features">
-                    <div class="feature">
-                        <span class="feature-icon">👆</span>
-                        <p>Swipe right to like</p>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">👈</span>
-                        <p>Swipe left to pass</p>
-                    </div>
-                    <div class="feature">
-                        <span class="feature-icon">🎧</span>
-                        <p>Get daily playlist</p>
-                    </div>
-                </div>
-
-                <!-- User Profile (when logged in) -->
-                <div id="user-profile" class="user-profile hidden">
-                    <div class="profile-info">
-                        <img id="user-avatar" class="user-avatar" src="" alt="User">
-                        <div>
-                            <p class="user-name" id="user-name">Loading...</p>
-                            <button id="logout-btn" class="btn-link">Logout</button>
+                    <!-- User Profile (when logged in) -->
+                    <div id="user-profile" class="user-profile hidden">
+                        <div class="profile-card glass">
+                            <img id="user-avatar" class="avatar" src="" alt="Profile">
+                            <div class="profile-info">
+                                <p class="profile-name" id="user-name">Loading...</p>
+                                <button id="logout-btn" class="btn-ghost btn-small">Sign Out</button>
+                            </div>
                         </div>
+                        <button id="start-swiping-btn" class="btn btn-primary btn-large" disabled>
+                            Start Your Session
+                        </button>
                     </div>
                 </div>
-
-                <!-- Login with Spotify -->
-                <div id="login-section">
-                    <button id="spotify-login-btn" class="btn-spotify">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path
-                                d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                        </svg>
-                        Login with Spotify
-                    </button>
-                </div>
-
-                <button id="start-swiping-btn" class="btn-primary" disabled>Start Swiping</button>
-
-                <p class="daily-note">✨ Fresh songs every day</p>
             </div>
         </div>
     </section>
@@ -66,98 +51,95 @@
     <!-- Swipe View -->
     <section id="swipe-view" class="view hidden">
         <div class="container swipe-container">
-            <!-- Progress Header -->
+            <!-- Header -->
             <div class="swipe-header">
-                <div class="progress-indicator">
-                    <span id="swipe-count">0</span> / 10
+                <div class="session-info">
+                    <span class="session-count" id="swipe-count">0</span>
+                    <span class="session-total">/ 10</span>
                 </div>
-                <div class="streak-badge" id="streak-badge">
-                    🔥 Day <span id="streak-count">1</span>
+                <div class="streak" id="streak-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z" />
+                    </svg>
+                    Day <span id="streak-count">1</span>
                 </div>
             </div>
 
             <!-- Card Stack -->
-            <div class="card-stack" id="card-stack">
-                <!-- Cards will be dynamically inserted here -->
-            </div>
+            <div class="card-stack" id="card-stack"></div>
 
-            <!-- Swipe Actions (mobile helper) -->
+            <!-- Actions -->
             <div class="swipe-actions">
-                <button class="action-btn dislike-btn" id="dislike-btn" aria-label="Dislike">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6l12 12" />
+                <button class="action-btn action-dislike" id="dislike-btn" aria-label="Pass">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                 </button>
-                <button class="action-btn like-btn" id="like-btn" aria-label="Like">
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="action-btn action-like" id="like-btn" aria-label="Like">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
                         <path
                             d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                     </svg>
                 </button>
             </div>
-
-            <!-- Hint Text -->
-            <p class="swipe-hint">Swipe right to like • Swipe left to pass</p>
-            <p class="keyboard-hint">⌨️ Use arrow keys or H/L</p>
         </div>
     </section>
 
     <!-- Results View -->
     <section id="results-view" class="view hidden">
         <div class="container results-container">
-            <div class="results-header">
-                <h1>🎉 Your Daily Playlist</h1>
-                <p class="results-subtitle">Based on your swipes today</p>
+            <div class="results-hero">
+                <h2>Your Session Complete</h2>
+                <p class="results-subtitle">Here's what resonated with you today</p>
             </div>
 
-            <!-- Stats Grid -->
+            <!-- Stats -->
             <div class="stats-grid">
-                <div class="stat">
-                    <span id="likes-count" class="stat-value">0</span>
-                    <span class="stat-label">Liked</span>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="likes-count">0</div>
+                    <div class="stat-label">Liked</div>
                 </div>
-                <div class="stat">
-                    <span id="dislikes-count" class="stat-value">0</span>
-                    <span class="stat-label">Passed</span>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="dislikes-count">0</div>
+                    <div class="stat-label">Passed</div>
                 </div>
-                <div class="stat">
-                    <span id="total-swipes" class="stat-value">10</span>
-                    <span class="stat-label">Total Swipes</span>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="total-swipes">10</div>
+                    <div class="stat-label">Total</div>
                 </div>
             </div>
 
-            <!-- AI Taste Analysis -->
-            <div id="taste-analysis" class="taste-analysis hidden">
-                <h2>🤖 Your Music Vibe</h2>
-                <p id="taste-summary" class="taste-summary">Analyzing your taste...</p>
-                <div class="taste-badges">
+            <!-- AI Insights -->
+            <div id="taste-analysis" class="taste-card glass hidden">
+                <h3>Your Taste Profile</h3>
+                <p id="taste-summary" class="taste-text">Analyzing your preferences...</p>
+                <div class="badge-group">
                     <span id="vibe-badge" class="badge">...</span>
                     <span id="mood-badge" class="badge">...</span>
                 </div>
             </div>
 
-            <!-- Liked Songs List -->
-            <div class="results-section">
-                <h2>Songs You Loved ❤️</h2>
-                <div id="liked-songs-list" class="song-list">
-                    <!-- Liked songs will be listed here -->
-                </div>
+            <!-- Liked Songs -->
+            <div class="songs-section">
+                <h3>Your Selections</h3>
+                <div id="liked-songs-list" class="songs-list"></div>
             </div>
 
             <!-- Actions -->
             <div class="results-actions">
-                <button id="save-to-spotify-btn" class="btn-primary">
+                <button id="save-to-spotify-btn" class="btn btn-primary btn-large">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path
                             d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
                     </svg>
                     Save to Spotify
                 </button>
-                <button id="share-btn" class="btn-secondary">Share My Daylist</button>
-                <button id="comeback-btn" class="btn-secondary">Come Back Tomorrow</button>
+                <button id="comeback-btn" class="btn btn-secondary">Start New Session</button>
             </div>
-
-            <p class="next-session-note">💫 New songs tomorrow at midnight</p>
         </div>
     </section>
 
