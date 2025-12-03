@@ -49,15 +49,19 @@
 .user-profile {
     margin-top: var(--space-8);
     animation: fadeInUp 0.6s var(--ease-smooth);
+    width: 100%;
 }
 
 .profile-card {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    padding: var(--space-4);
+    padding: var(--space-5);
     border-radius: var(--radius-lg);
     margin-bottom: var(--space-5);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .avatar {
@@ -65,18 +69,22 @@
     height: 56px;
     border-radius: 50%;
     border: 2px solid var(--spotify-green);
+    flex-shrink: 0;
 }
 
 .profile-info {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+    flex: 1;
+    align-items: flex-start;
 }
 
 .profile-name {
     font-weight: 600;
     font-size: 1.125rem;
     color: var(--white);
+    margin: 0;
 }
 
 /* Swipe Container */
@@ -466,6 +474,7 @@
         width: 100%;
     }
 }
+
 /* Profile Page */
 .profile-container {
     max-width: 800px;
@@ -560,6 +569,11 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

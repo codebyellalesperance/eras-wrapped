@@ -205,20 +205,34 @@ function updateUIForLoggedInUser() {
     const userProfile = document.getElementById('user-profile');
     const startBtn = document.getElementById('start-swiping-btn');
 
+    console.log('Updating UI for logged in user:', state.user);
+
     if (loginSection) loginSection.classList.add('hidden');
     if (userProfile) {
         userProfile.classList.remove('hidden');
-        document.getElementById('user-name').textContent = state.user?.display_name || 'User';
+
+        const userName = document.getElementById('user-name');
+        if (userName && state.user) {
+            userName.textContent = state.user.display_name || state.user.name || 'Music Lover';
+        }
 
         const avatar = document.getElementById('user-avatar');
-        if (state.user?.image) {
-            avatar.src = state.user.image;
-        } else {
-            avatar.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><circle cx="24" cy="24" r="24" fill="%231DB954"/><text x="24" y="32" text-anchor="middle" fill="white" font-size="20">🎵</text></svg>';
+        if (avatar && state.user) {
+            if (state.user.image) {
+                avatar.src = state.user.image;
+            } else {
+                // Create placeholder with first letter
+                const initial = (state.user.display_name || state.user.name || 'U')[0].toUpperCase();
+                avatar.src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="28" fill="%231DB954"/><text x="28" y="38" text-anchor="middle" fill="white" font-size="24" font-weight="bold">${initial}</text></svg>`;
+            }
+            avatar.style.display = 'block';
         }
     }
 
-    if (startBtn) startBtn.disabled = false;
+    if (startBtn) {
+        startBtn.disabled = false;
+        startBtn.style.opacity = '1';
+    }
 }
 
 function updateUIForLoggedOutUser() {
@@ -807,16 +821,16 @@ showResults = function () {
 function showProfile() {
     /**Display user profile with stats*/
     showView('profile');
-    
+
     // Update stats
     document.getElementById('profile-sessions').textContent = state.totalSessions;
     document.getElementById('profile-likes').textContent = state.totalLikes;
     document.getElementById('profile-streak').textContent = state.streak;
-    
+
     // Show recent likes
     const recentList = document.getElementById('recent-songs-list');
     recentList.innerHTML = '';
-    
+
     const recentSongs = state.allTimeLikedSongs.slice(-10).reverse();
     recentSongs.forEach((song, index) => {
         const item = document.createElement('div');
