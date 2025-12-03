@@ -143,6 +143,83 @@
         </div>
     </section>
 
+    <!-- Profile View (Phase 4) -->
+    <section id="profile-view" class="view hidden">
+        <div class="container profile-container">
+            <div class="profile-header">
+                <button id="profile-back-btn" class="btn-ghost btn-small">Back</button>
+                <h2>Your Stats</h2>
+            </div>
+
+            <div class="stats-overview">
+                <div class="stat-card glass">
+                    <div class="stat-value" id="profile-sessions">0</div>
+                    <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="profile-likes">0</div>
+                    <div class="stat-label">Songs Liked</div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-value" id="profile-streak">1</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+
+            <div class="recently-liked">
+                <h3>Recently Liked</h3>
+                <div id="recent-songs-list" class="songs-list"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Onboarding Modal (Phase 4) -->
+    <div id="onboarding-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <h2>Welcome to TasteSwipe</h2>
+            <p class="modal-text">Discover your next favorite song in just 10 swipes a day.</p>
+
+            <div class="onboarding-steps">
+                <div class="step">
+                    <div class="step-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </div>
+                    <h4>Swipe Right to Like</h4>
+                    <p>Save songs you love</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </div>
+                    <h4>Swipe Left to Pass</h4>
+                    <p>Not your vibe? Skip it</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+                        </svg>
+                    </div>
+                    <h4>Save to Spotify</h4>
+                    <p>Export your discoveries</p>
+                </div>
+            </div>
+
+            <button id="onboarding-start-btn" class="btn btn-primary btn-large">Get Started</button>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 

@@ -799,3 +799,52 @@ showResults = function () {
         }, 500);
     }
 };
+
+// ===========================================================================
+// PHASE 4: PROFILE & ONBOARDING
+// ===========================================================================
+
+function showProfile() {
+    /**Display user profile with stats*/
+    showView('profile');
+    
+    // Update stats
+    document.getElementById('profile-sessions').textContent = state.totalSessions;
+    document.getElementById('profile-likes').textContent = state.totalLikes;
+    document.getElementById('profile-streak').textContent = state.streak;
+    
+    // Show recent likes
+    const recentList = document.getElementById('recent-songs-list');
+    recentList.innerHTML = '';
+    
+    const recentSongs = state.allTimeLikedSongs.slice(-10).reverse();
+    recentSongs.forEach((song, index) => {
+        const item = document.createElement('div');
+        item.className = 'song-item';
+        item.style.animationDelay = `${index * 0.05}s`;
+        item.innerHTML = `
+            <div class="song-info">
+                <div class="song-info-track">${song.track}</div>
+                <div class="song-info-artist">${song.artist}</div>
+            </div>
+        `;
+        recentList.appendChild(item);
+    });
+}
+
+function showOnboarding() {
+    /**Show onboarding modal for new users*/
+    document.getElementById('onboarding-modal').classList.remove('hidden');
+}
+
+function hideOnboarding() {
+    /**Hide onboarding modal*/
+    document.getElementById('onboarding-modal').classList.add('hidden');
+    state.showOnboarding = false;
+    saveUserData();
+}
+
+// Check if onboarding should show
+if (state.showOnboarding && state.totalSessions === 0) {
+    setTimeout(() => showOnboarding(), 500);
+}
