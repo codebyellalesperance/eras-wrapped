@@ -5,16 +5,16 @@
 
 // Sample song database (will be replaced with Spotify API later)
 const SAMPLE_SONGS = [
-    { id: 1, track: "Anti-Hero", artist: "Taylor Swift", genre: ["Pop"], emoji: "🎤" },
-    { id: 2, track: "Blinding Lights", artist: "The Weeknd", genre: ["Pop", "Synth"], emoji: "✨" },
-    { id: 3, track: "As It Was", artist: "Harry Styles", genre: ["Pop Rock"], emoji: "🎸" },
-    { id: 4, track: "Heat Waves", artist: "Glass Animals", genre: ["Indie"], emoji: "🌊" },
-    { id: 5, track: "Levitating", artist: "Dua Lipa", genre: ["Pop", "Disco"], emoji: "💫" },
-    { id: 6, track: "good 4 u", artist: "Olivia Rodrigo", genre: ["Pop Punk"], emoji: "🎭" },
-    { id: 7, track: "Stay", artist: "The Kid LAROI, Justin Bieber", genre: ["Pop"], emoji: "💔" },
-    { id: 8, track: "Montero", artist: "Lil Nas X", genre: ["Hip Hop"], emoji: "👑" },
-    { id: 9, track: "Peaches", artist: "Justin Bieber", genre: ["R&B"], emoji: "🍑" },
-    { id: 10, track: "drivers license", artist: "Olivia Rodrigo", genre: ["Pop"], emoji: "🚗" }
+    { id: 1, track: "Anti-Hero", artist: "Taylor Swift", genre: ["Pop"] },
+    { id: 2, track: "Blinding Lights", artist: "The Weeknd", genre: ["Pop", "Synth"] },
+    { id: 3, track: "As It Was", artist: "Harry Styles", genre: ["Pop Rock"] },
+    { id: 4, track: "Heat Waves", artist: "Glass Animals", genre: ["Indie"] },
+    { id: 5, track: "Levitating", artist: "Dua Lipa", genre: ["Pop", "Disco"] },
+    { id: 6, track: "good 4 u", artist: "Olivia Rodrigo", genre: ["Pop Punk"] },
+    { id: 7, track: "Stay", artist: "The Kid LAROI, Justin Bieber", genre: ["Pop"] },
+    { id: 8, track: "Montero", artist: "Lil Nas X", genre: ["Hip Hop"] },
+    { id: 9, track: "Peaches", artist: "Justin Bieber", genre: ["R&B"] },
+    { id: 10, track: "drivers license", artist: "Olivia Rodrigo", genre: ["Pop"] }
 ];
 
 // Application state
@@ -28,7 +28,13 @@ const state = {
     streak: 1,
     dailySongs: [],
     isLoggedIn: false,
-    user: null
+    user: null,
+    // Phase 4: Polish
+    lastSessionDate: null,
+    totalSessions: 0,
+    totalLikes: 0,
+    allTimeLikedSongs: [],
+    showOnboarding: false
 };
 
 // ===========================================================================
@@ -76,6 +82,92 @@ function shuffleArray(array) {
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+}
+
+// ===========================================================================
+// PHASE 4: PERSISTENCE & STATS
+// ===========================================================================
+
+function loadUserData() {
+    /**Load persisted user data from localStorage*/
+    try {
+        const saved = localStorage.getItem('tasteswipe_data');
+        if (saved) {
+            const data = JSON.parse(saved);
+            state.streak = data.streak || 1;
+            state.lastSessionDate = data.lastSessionDate;
+            state.totalSessions = data.totalSessions || 0;
+            state.totalLikes = data.totalLikes || 0;
+            state.allTimeLikedSongs = data.allTimeLikedSongs || [];
+            state.showOnboarding = data.showOnboarding !== false; // Default true for new users
+
+            // Check if streak should reset  
+            if (state.lastSessionDate) {
+                const lastDate = new Date(state.lastSessionDate);
+                const today = new Date();
+                const daysDiff = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+
+                if (daysDiff > 1) {
+                    // Streak broken
+                    state.streak = 1;
+                } else if (daysDiff === 1) {
+                    // Continue streak (don't increment yet, wait for session completion)
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to load user data:', error);
+    }
+}
+
+function saveUserData() {
+    /**Persist user data to localStorage*/
+    try {
+        const data = {
+            streak: state.streak,
+            lastSessionDate: state.lastSessionDate,
+            totalSessions: state.totalSessions,
+            totalLikes: state.totalLikes,
+            allTimeLikedSongs: state.allTimeLikedSongs,
+            showOnboarding: state.showOnboarding
+        };
+        localStorage.setItem('tasteswipe_data', JSON.stringify(data));
+    } catch (error) {
+        console.error('Failed to save user data:', error);
+    }
+}
+
+function completeSession() {
+    /**Mark session as complete and update stats*/
+    const today = new Date().toDateString();
+
+    // Update session count
+    state.totalSessions++;
+    state.totalLikes += state.likedSongs.length;
+
+    // Add to all-time likes
+    state.likedSongs.forEach(song => {
+        if (!state.allTimeLikedSongs.find(s => s.id === song.id)) {
+            state.allTimeLikedSongs.push(song);
+        }
+    });
+
+    // Update streak
+    if (state.lastSessionDate !== today) {
+        const lastDate = state.lastSessionDate ? new Date(state.lastSessionDate) : null;
+        const todayDate = new Date(today);
+
+        if (lastDate) {
+            const daysDiff = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+            if (daysDiff === 1) {
+                state.streak++; // Consecutive day
+            }
+        }
+
+        state.lastSessionDate = today;
+    }
+
+    saveUserData();
 }
 
 // ===========================================================================
@@ -362,6 +454,9 @@ function animateSwipe(card, direction) {
 function showResults() {
     showView('results');
 
+    // Complete session and save stats
+    completeSession();
+
     // Animate stats
     setTimeout(() => {
         animateNumber(document.getElementById('likes-count'), state.likedSongs.length, 800);
@@ -477,6 +572,9 @@ function animateNumber(element, finalValue, duration = 1000) {
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded');
+
+    // Load persisted user data
+    loadUserData();
 
     // Check if user is logged in
     await checkAuthStatus();
