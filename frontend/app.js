@@ -26,7 +26,9 @@ const state = {
     likedSongs: [],
     dislikedSongs: [],
     streak: 1,
-    dailySongs: []
+    dailySongs: [],
+    isLoggedIn: false,
+    user: null
 };
 
 // ===========================================================================
@@ -77,12 +79,124 @@ function shuffleArray(array) {
 }
 
 // ===========================================================================
+// AUTHENTICATION & SPOTIFY API
+// ===========================================================================
+
+async function checkAuthStatus() {
+    /**Check if user is logged in with Spotify*/
+    try {
+        const response = await fetch('http://localhost:5001/auth/me', {
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.logged_in) {
+                state.isLoggedIn = true;
+                state.user = data.user;
+                updateUIForLoggedInUser();
+                return true;
+            }
+        }
+    } catch (error) {
+        console.error('Auth check failed:', error);
+    }
+
+    state.isLoggedIn = false;
+    updateUIForLoggedOutUser();
+    return false;
+}
+
+function updateUIForLoggedInUser() {
+    /**Update UI when user is logged in*/
+    const loginSection = document.getElementById('login-section');
+    const userProfile = document.getElementById('user-profile');
+    const startBtn = document.getElementById('start-swiping-btn');
+
+    if (loginSection) loginSection.classList.add('hidden');
+    if (userProfile) {
+        userProfile.classList.remove('hidden');
+        document.getElementById('user-name').textContent = state.user?.display_name || 'User';
+
+        const avatar = document.getElementById('user-avatar');
+        if (state.user?.image) {
+            avatar.src = state.user.image;
+        } else {
+            avatar.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"><circle cx="24" cy="24" r="24" fill="%231DB954"/><text x="24" y="32" text-anchor="middle" fill="white" font-size="20">🎵</text></svg>';
+        }
+    }
+
+    if (startBtn) startBtn.disabled = false;
+}
+
+function updateUIForLoggedOutUser() {
+    /**Update UI when user is logged out*/
+    const loginSection = document.getElementById('login-section');
+    const userProfile = document.getElementById('user-profile');
+    const startBtn = document.getElementById('start-swiping-btn');
+
+    if (loginSection) loginSection.classList.remove('hidden');
+    if (userProfile) userProfile.classList.add('hidden');
+    if (startBtn) startBtn.disabled = true;
+}
+
+async function fetchSpotifyRecommendations() {
+    /**Fetch real recommendations from Spotify API*/
+    try {
+        const response = await fetch('http://localhost:5001/api/recommendations', {
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch recommendations');
+        }
+
+        const data = await response.json();
+        return data.songs || [];
+    } catch (error) {
+        console.error('Failed to get Spotify recommendations:', error);
+        // Fallback to sample songs
+        return SAMPLE_SONGS;
+    }
+}
+
+async function savePlaylistToSpotify(liked_tracks) {
+    /**Create Spotify playlist from liked songs*/
+    try {
+        const response = await fetch('http://localhost:5001/api/playlist/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({ liked_tracks })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to create playlist');
+        }
+
+        const data = await response.json();
+        return data.playlist;
+    } catch (error) {
+        console.error('Failed to save playlist:', error);
+        throw error;
+    }
+}
+
+// ===========================================================================
 // SWIPE LOGIC
 // ===========================================================================
 
-function initializeDailySongs() {
-    // Shuffle songs for today
-    state.dailySongs = shuffleArray(SAMPLE_SONGS).slice(0, state.maxSwipes);
+async function initializeDailySongs() {
+    // Get recommendations from Spotify if logged in
+    if (state.isLoggedIn) {
+        state.dailySongs = await fetchSpotifyRecommendations();
+    } else {
+        // Fallback to sample songs
+        state.dailySongs = shuffleArray(SAMPLE_SONGS).slice(0, state.maxSwipes);
+    }
+
     state.currentSongIndex = 0;
     state.swipeCount = 0;
     state.likedSongs = [];
@@ -308,14 +422,44 @@ function animateNumber(element, finalValue, duration = 1000) {
 // EVENT HANDLERS
 // ===========================================================================
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM Content Loaded');
-    console.log('Start button:', document.getElementById('start-swiping-btn'));
+
+    // Check if user is logged in
+    await checkAuthStatus();
+
+    // Handle OAuth callback
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('logged_in') === 'true') {
+        // Remove query params from URL
+        window.history.replaceState({}, document.title, '/');
+        await checkAuthStatus();
+    }
+
+    // Spotify login button
+    const loginBtn = document.getElementById('spotify-login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            console.log('Redirecting to Spotify login...');
+            window.location.href = 'http://localhost:5001/auth/login';
+        });
+    }
+
+    // Logout button
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await fetch('http://localhost:5001/auth/logout', { credentials: 'include' });
+            state.isLoggedIn = false;
+            state.user = null;
+            updateUIForLoggedOutUser();
+        });
+    }
 
     // Start Swiping button
-    document.getElementById('start-swiping-btn').addEventListener('click', () => {
+    document.getElementById('start-swiping-btn').addEventListener('click', async () => {
         console.log('Start Swiping button clicked');
-        initializeDailySongs();
+        await initializeDailySongs();
         console.log('Daily songs initialized:', state.dailySongs);
         showView('swipe');
         renderCards();
@@ -340,6 +484,48 @@ document.addEventListener('DOMContentLoaded', () => {
             const topCard = document.querySelector('.song-card');
             if (topCard) {
                 swipeLeft(topCard);
+            }
+        });
+    }
+
+
+    // Save to Spotify button (in results view)
+    const saveToSpotifyBtn = document.getElementById('save-to-spotify-btn');
+    if (saveToSpotifyBtn) {
+        saveToSpotifyBtn.addEventListener('click', async () => {
+            if (!state.isLoggedIn) {
+                alert('Please login with Spotify first!');
+                return;
+            }
+
+            if (state.likedSongs.length === 0) {
+                alert('You need to like at least one song!');
+                return;
+            }
+
+            // Show loading state
+            saveToSpotifyBtn.disabled = true;
+            saveToSpotifyBtn.textContent = 'Creating playlist...';
+
+            try {
+                const playlist = await savePlaylistToSpotify(state.likedSongs);
+
+                // Show success
+                saveToSpotifyBtn.textContent = '✅ Saved to Spotify!';
+
+                // Show playlist link
+                setTimeout(() => {
+                    if (confirm(`Playlist "${playlist.name}" created! Open in Spotify?`)) {
+                        window.open(playlist.url, '_blank');
+                    }
+                    saveToSpotifyBtn.textContent = 'Save to Spotify';
+                    saveToSpotifyBtn.disabled = false;
+                }, 1000);
+
+            } catch (error) {
+                alert('Failed to save playlist: ' + error.message);
+                saveToSpotifyBtn.textContent = 'Save to Spotify';
+                saveToSpotifyBtn.disabled = false;
             }
         });
     }
