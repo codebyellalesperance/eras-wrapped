@@ -114,6 +114,10 @@ body {
     display: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .view-enter {
     animation: fadeInScale 0.6s var(--ease-smooth) forwards;
 }
