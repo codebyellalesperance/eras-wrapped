@@ -5,7 +5,7 @@ Handles recommendations, playlists, and user data
 
 import requests
 from flask import session
-from backend.spotify_auth import get_valid_token
+from spotify_auth import get_valid_token
 
 SPOTIFY_API_BASE = 'https://api.spotify.com/v1'
 
