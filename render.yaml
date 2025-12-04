@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: tasteswipe
+    env: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SPOTIFY_REDIRECT_URI
+        value: https://tasteswipe.onrender.com/auth/callback
+      - key: FRONTEND_URL
+        value: https://tasteswipe.onrender.com
+      - key: ALLOWED_ORIGINS
+        value: https://tasteswipe.onrender.com

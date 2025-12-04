@@ -35,8 +35,14 @@ logger = logging.getLogger(__name__)
 IS_PRODUCTION = os.getenv('FLASK_ENV') == 'production'
 IS_DEVELOPMENT = os.getenv('FLASK_ENV') == 'development'
 
-app = Flask(__name__)
+# Serve frontend static files
+app = Flask(__name__, static_folder='../frontend', static_url_path='')
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB
+
+@app.route('/')
+def index():
+    """Serve the frontend single page app"""
+    return app.send_static_file('index.html')
 
 # Secure session configuration
 app.config.update(
