@@ -212,8 +212,12 @@ function updateUIForLoggedInUser() {
         userProfile.classList.remove('hidden');
 
         const userName = document.getElementById('user-name');
-        if (userName && state.user) {
-            userName.textContent = state.user.display_name || state.user.name || 'Music Lover';
+        if (userName) {
+            if (state.user && (state.user.display_name || state.user.name)) {
+                userName.textContent = state.user.display_name || state.user.name;
+            } else {
+                userName.textContent = 'Music Lover';
+            }
         }
 
         const avatar = document.getElementById('user-avatar');
